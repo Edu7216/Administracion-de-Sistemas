@@ -1,0 +1,12 @@
+Eduardo Gimeno 721615
+
+En primer lugar se comprueba posibles casos de error, tales como que el usuario que ejecuta el script no tenga privilegios de administración, es decir durante la ejecución del script no sea superusuario, que el número de argumentos no sea 2 y que la opción introducida no sea -a o -s.
+
+Se crea el directorio /extra/backup, donde irán los tar de los directorios home de los usuarios que se borren. Si este directorio ya existiera no se crearía de nuevo.
+
+Se lee línea a línea el fichero de usuarios y se separan los tres campos necesarios en distintas variables.
+
+Seguidamente se comprueba si hay que añadir o eliminar los usuarios del fichero. Si hay que eliminarlos, primero se comprueba si el usuario existe, en caso afirmativo se obtiene su directorio home consultando /etc/passwd y se bloquea su cuenta para que no pueda modificar ni tocar ningún archivo con usermod (opción -e), de esta manera no habrá ningún problema al crear el tar. Se obtiene el directorio home del usuario mirando el fichero /etc/passwd, ya que podría ser que no estuviera en /home. Se crea el tar en /extra/backup del directorio home del usuario (opción -C para cambiar a dicho directorio antes de realizar ninguna operación) y si se ha realizado satisfactoriamente, se procede a borrar el usuario mediante userdel (opción -r para borrar todo).
+
+Si hay que añadir usuarios, en primer lugar se comprueba que los tres campos necesarios no sean cadena vacía, en caso afirmativo se abortará la ejecución. Mediante useradd se procede a crear el nuevo usuario, estableciéndole un UID mínimo de 1815, que cree un directorio home y que cree un grupo con el mismo nombre que el usuario e indicando que copie los ficheros de /etc/skel en el directorio del usuario. Si esta operación tiene éxito, con chpasswd se le establece la contraseña leida del fichero y finalmente que tengan que pasar mínimo 30 días hasta que se pueda modificar con chage. Si esta última operación tiene éxito se mostrará por la sálida estándar que el nuevo usuario ha sido añadido. Si useradd no tuviera éxito querría decir que ese usuario ya existe y en tal caso se mostraría por la sálida estándar el respectivo mensaje.
+

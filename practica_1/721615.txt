@@ -1,0 +1,26 @@
+Eduardo Gimeno 721615
+
+1) La llamada al sistema utilizada para ejecutar un script exec, reemplaza
+   el shell actual por el script indicado. Al proceso que ejecuta el script
+   se le asigna el PID del shell, dejando este de existir
+
+2) El error es debido a que primer_script.sh no tiene permiso de ejecución, 
+   la solución radica en darle dicho permiso.
+
+3) La salida del segundo script es:
+	hola
+	mundo
+   Al introducir la cadena sin comillas dobles se interpreta como un vector
+   de palabras, "hola" ocuparía la posición 1 y "mundo" la 2. 
+
+4) Muestra lo siguiente:
+	hola
+	mundo,
+	como
+	estas?
+
+5) No se produce ningún error, simplemente muestra el contenido de los ficheros
+   ya presentes.
+
+
+	

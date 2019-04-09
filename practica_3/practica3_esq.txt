@@ -1,0 +1,35 @@
+# Comprobar que el usuario que ejecuta el script tiene permisos de admin
+
+# Comprobar número de argumentos
+
+# Comprobar que se han introducido opciones correctas
+
+# Mientras quede contenido sin leer del fichero
+
+	# Leer campos
+
+	# Comprobar si se quiere borrar
+
+		# Comprobar que el usuario existe
+			
+			# Hacer backup del home (con lo que ello conlleve)
+			
+			# Si el backup ha tenido exito
+
+				# Borrar usuario (incluyendo home)
+
+	# Si no se quiere borrar, se añade
+
+		# Comprobar que los campos no sean cadena vacía
+
+			# Abortar ejecución
+
+		# Si no lo son
+
+			# Añadir usuario (con lo que ello conlleve)
+
+# Fin
+		
+
+		
+
