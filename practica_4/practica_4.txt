@@ -1,0 +1,55 @@
+Memoria Practica 4
+Eduardo Gimeno 721615
+
+Para realizar esta práctica se han seguido los siguientes pasos:
+1- Editar el fichero /etc/network/interfaces en cada máquina para que en el arranque se conecten a los nuevos interfaces.
+	IP: debian-as1 192.168.56.2
+	    debian-as2 192.168.56.3
+Ejemplo debian-as1:
+	auto enp0s8
+	iface enp0s8 inet static
+	address 192.168.56.2
+	netmask 255.255.255.0
+Reiniciar la máquina una vez editado el fichero.
+
+2- Ping entre host y las máquinas y entre ellas, para comprobar que se ha configurado correctamente. Además ping entre las máquinas y www.google.es para comprobar que tienen acceso a Internet
+
+3- Utilizar ip addr para ver la IP y MAC del host y de las dos máquinas para la nueva red.
+Ejemplo debian-as1:
+	3: enp0s8: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UP group default qlen 1000
+		link/ether 08:00:27:d1:19:72 brd ff:ff:ff:ff:ff:ff
+		inet 192.168.56.2/24 brd 192.168.56.255 scope global enp0s8
+			valid_lft forever preferred_lft forever
+		inet6 fe80::a00:27ff:fed1:1972/64 scope link
+			valid_lft forever preferred_lft forever
+
+4- Instalar servidor ssh en ambas máquinas
+	sudo apt-get update
+	sudo apt-get install openssh-server
+
+5- Probar conexión ssh del host a las máquinas mediante ssh user@192.168.56.(2/3)
+
+6- Modificar el fichero /etc/ssh/sshd_config cambiando las siguientes opciones:
+	PermitRootLogin no 
+	Para que root no se pueda conectar
+	PasswordAuthentication no
+	Para validar la conexión ssh siempre con clave pública, esto proporciona más seguirdad
+Una vez modificado el fichero hay que reiniciar el servicio mediante:
+	/etc/init.d/ssh restart
+
+7- En host generar una clave pública y privada del tipo ed25519 y guardarla en un fichero con nombre id_as_ed255519.
+	ssh-keygen -t ed25519
+
+8- Copiar la clave pública en las dos máquinas.
+	ssh-copy-id user@192.168.56.2
+	ssh-copy-id user@192.168.56.3
+
+9- Probar la conexión ssh con clave pública.
+	ssh -i /home/eduardo/.ssh/id_as_ed25519 user@192.168.56.2
+	ssh -i /home/eduardo/.ssh/id_as_ed25519 user@192.168.56.3
+
+10- Modificar el script de la práctica anterior realizando cada acción remotamente utilizando ssh, los comandos que modificaban algo en la máquina se ejecutaban con sudo.
+	ssh -q -n -i "$keypath" user@"$ip" sudo userdel -r "$iduser" > /dev/null
+Siendo keypath la ruta de la clave privada en host.
+
+11- Comprobar en las máquinas que se han añadido/borrado nuevos usuarios y pasar los test correspondientes a esta práctica

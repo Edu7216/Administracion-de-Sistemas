@@ -34,9 +34,9 @@ do
   cat "$2" | while read line
   do
     # Extraer del fichero el id del usuario, contraseña y nombre
-    iduser=$(echo "$line" | cut -d ',' -f 1)
+    username=$(echo "$line" | cut -d ',' -f 1)
     password=$(echo "$line" | cut -d ',' -f 2)
-    username=$(echo "$line" | cut -d ',' -f 3)
+    name=$(echo "$line" | cut -d ',' -f 3)
 
     # Borrar usuarios
     if [ "$1" = "-s" ]
@@ -45,39 +45,39 @@ do
       if ssh -q -n -i "$keypath" user@"$ip" id "$iduser" > /dev/null 2>&1
       then
 	# Encontrar su directorio home
-        homeuser=$(ssh -q -n -i "$keypath" user@"$ip" cat /etc/passwd | grep "$iduser" | cut -d ':' -f 6)
+        homeuser=$(ssh -q -n -i "$keypath" user@"$ip" cat /etc/passwd | grep "$username" | cut -d ':' -f 6)
 	homeuser1="${homeuser%/*}"
         homeuser2="${homeuser##*/}"
         ad=$(ssh -q -n -i "$keypath" user@"$ip" date "+%Y-%m-%d")
 	# Bloquear la cuenta para que no pueda modificar nada mientras se hace el backup
-        ssh -q -n -i "$keypath" user@"$ip" sudo usermod -e "$ad" "$iduser" > /dev/null 2>&1
+        ssh -q -n -i "$keypath" user@"$ip" sudo usermod -e "$ad" "$username" > /dev/null 2>&1
 	# Se crea el tar y si tiene éxito de borra al usuario
-        if ssh -q -n -i "$keypath" user@"$ip" sudo tar cf "/extra/backup/${iduser}.tar" -C "$homeuser1" "$homeuser2" > /dev/null 2>&1
+        if ssh -q -n -i "$keypath" user@"$ip" sudo tar cf "/extra/backup/${username}.tar" -C "$homeuser1" "$homeuser2" > /dev/null 2>&1
         then
-	  ssh -q -n -i "$keypath" user@"$ip" sudo userdel -r "$iduser" > /dev/null 2>&1
+	  ssh -q -n -i "$keypath" user@"$ip" sudo userdel -r "$username" > /dev/null 2>&1
         fi
       fi
     else
       # Añadir usuarios
       # Comprobar que ninguno de los tres campos contenga la cadena vacía
-      if [ -z "$iduser" -o -z "$password" -o -z "$username" ]
+      if [ -z "$username" -o -z "$password" -o -z "$name" ]
       then
         echo "Campo invalido"
         exit 1
       fi
       
       # Añadir al usuario
-      if ssh -q -n -i "$keypath" user@"$ip" sudo useradd -m -K UID_MIN=1000 -c "$username" -k /etc/skel -U "$iduser" > /dev/null 2>&1
+      if ssh -q -n -i "$keypath" user@"$ip" sudo useradd -m -K UID_MIN=1815 -c "$name" -k /etc/skel -U "$username" > /dev/null 2>&1
       then
 	# Establecer su contraseña
-        ssh -q -n -i "$keypath" user@"$ip" echo "$iduser:$password" | ssh -q -n -i "$keypath" user@"$ip" sudo chpasswd > /dev/null 2>&1
+        ssh -q -n -i "$keypath" user@"$ip" echo "$username:$password" | ssh -q -n -i "$keypath" user@"$ip" sudo chpasswd > /dev/null 2>&1
 	# Por un mínimo de 30 días
-        if ssh -q -n -i "$keypath" user@"$ip" sudo chage -m 30 "$iduser" > /dev/null 2>&1
+        if ssh -q -n -i "$keypath" user@"$ip" sudo chage -m 30 "$username" > /dev/null 2>&1
         then
-	  echo "$username ha sido creado"
+	  echo "$name ha sido creado"
         fi
       else
-        echo "El usuario $iduser ya existe"
+        echo "El usuario $username ya existe"
       fi
     fi
   done
