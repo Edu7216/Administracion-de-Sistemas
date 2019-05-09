@@ -1,0 +1,40 @@
+Discos duros disponibles y sus tamaños de bloques en 192.168.56.2
+/dev/sdb:    524288
+/dev/sda:   8388608
+total: 8912896 bloques
+
+
+Particiones y sus tamaños en 192.168.56.2
+Disco /dev/sdb: 512 MiB, 536870912 bytes, 1048576 sectores
+Unidades: sectores de 1 * 512 = 512 bytes
+Tamaño de sector (lógico/físico): 512 bytes / 512 bytes
+Tamaño de E/S (mínimo/óptimo): 512 bytes / 512 bytes
+Tipo de etiqueta de disco: gpt
+Identificador del disco: 68454A0E-BED0-4D68-8905-1759AF154C80
+
+Disposit.  Comienzo  Final Sectores Tamaño Tipo
+/dev/sdb1      2048 499711   497664   243M Sistema de ficheros de Linux
+/dev/sdb2    499712 999423   499712   244M Sistema de ficheros de Linux
+
+
+Disco /dev/sda: 8 GiB, 8589934592 bytes, 16777216 sectores
+Unidades: sectores de 1 * 512 = 512 bytes
+Tamaño de sector (lógico/físico): 512 bytes / 512 bytes
+Tamaño de E/S (mínimo/óptimo): 512 bytes / 512 bytes
+Tipo de etiqueta de disco: dos
+Identificador del disco: 0x60f5a932
+
+Disposit.  Inicio Comienzo    Final Sectores Tamaño Id Tipo
+/dev/sda1  *          2048 14680063 14678016     7G 83 Linux
+/dev/sda2         14682110 16775167  2093058  1022M  5 Extendida
+/dev/sda5         14682112 16775167  2093056  1022M 82 Linux swap / Solaris
+
+
+
+
+Información de montaje de sistemas de ficheros en 192.168.56.2
+S.ficheros     Tipo     Tamaño Usados  Disp Uso% Montado en
+udev           devtmpfs   487M      0  487M   0% /dev
+/dev/sda1      ext4       6,9G   1,2G  5,3G  19% /
+/dev/sdb1      ext3       232M   2,1M  218M   1% /mnt/DiskPart1
+/dev/sdb2      ext4       233M   2,1M  215M   1% /mnt/DiskPart2

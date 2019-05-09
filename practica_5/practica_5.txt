@@ -1,0 +1,53 @@
+Eduardo Gimeno 721615
+
+Para la realización de esta práctica se han utilizado las máquinas debian-as1 y debian-as2 de la práctica anterior.
+
+PARTE 1
+En primer lugar se ha instalado en ambas máquinas el paquete lvm2 y se ha comprobado que el servicio funciona correctamente.
+
+Se ha añadido en cada máquina un nuevo disco de 512 MB y se ha instalado parted para poder realizar particiones sobre los nuevos discos. Mediante parted, se ha utlizado print devices para ver que el sistema había reconocido correctamente el nuevo disco.
+
+Mediante parted se ha seguido el siguiente procedimiento para crear las particiones:
+	1- select /dev/sdb
+	2- mklabel gpt
+	3- mkpart
+		P1
+		ext3
+		1 (para evitar problemas de alineamiento)
+		256
+	4- mkpart
+		P2
+		ext4
+		256
+		512
+	5- print (para ver que se han añadido correctamente)
+
+Acto seguido se ha salido de la herramienta parted y se ha procedido a crear ambos sistemas de ficheros. Para ello se ha utilizado sudo mkfs -t ext3 /dev/sdb1 para la primera partición y sudo mkfs -t ext4 /dev/sdb2 para la segunda.
+
+Después se ha procedido a montar ambos sistemas de ficheros mediante mount -t ext3 /dev/sdb1 /mnt/DiskPart1, para el primero y mount -t ext4 /dev/sdb2 /mnt/DiskPart2 para el segundo. DiskPart1 y DiskPart2 son dos directorios vacíos creados en /mnt para albergar sendos sitemas de ficheros.
+
+Se comprueba en el fichero /etc/mtab que ambos sistemas se han montado correctamente. Después se reinicia la máquina para ver que ambos sistemas no se han montado durante el arranque y se procede a editar el fichero /etc/fstab para que si lo hagan.
+
+Se añaden al final del fichero las siguientes líneas:
+(debian-as1)
+# partition 1 is on /dev/sdb1
+UUID=07641116-ad2d-4744-b82e-7a12613184d2 /mnt/DiskPart1 ext3 errors=remount-ro 0 1
+# partition 2 is on /dev/sdb2
+UUID=8a7aec7c-f244-416d-a376-1db8c25a8cc1 /mnt/DiskPart2 ext4 errors=remount-ro 0 1
+
+Para ver el UUID se ha utlizado ls -l /dev/disk/by-uuid.
+
+Una vez modificado el fichero se reinicia la máquina y se comprueba en /etc/mtab que ambos sistemas de ficheros se han cargado correctamente durante el arranque.
+
+PARTE 2
+Para obtener la diversa información requerida remotamente se ha utilizado ssh -q -n -i /home/.ssh/id_as_ed25519 sudo comando.
+La información obtenida de ambas máquinas es prácticamente idéntica, lo único en lo que varía es en el identificador del disco añadido en la parte anterior. Se observan dos discos duros disponibles, uno en /dev/sda, el cual es el disco duro principal, y otro en /dev/sdb, el añadido anteriormente. En cuanto a particiones para sda se observan tres, la principal (linux) (sda1, 7GB), la extendida (sda2, 1GB) y la de swap (sda5, 1GB). Para sdb se observan las dos creadas anteriormente sdb1 (243MB) y sdb2 (244MB). Finalmente se observan cuatro sistemas de ficheros montados, en sda1, de tamaño 5,9GB, en sdb1, de 232MB, en sdb2, de 233MB y en udev, de 991MB. Con un 19% , 1%, 1% y 0% de uso, respectivamente.
+
+PARTE 3
+Se ha añadido en ambas máquinas un nuevo disco duro de 0,5GB de capacidad. Se ha creado una partición LVM mediante la herramineta parted, primero se ha creado una partición como en la parte 1 y acto seguido mediante set 1 lvm on se ha convertido en una partición LVM. Para crear un volumen físico de esta partición se ha utilizado sudo pvcreate /dev/sdc1, porque si no, no podrá añadirse correctamente a un volumen lógico. Después de esto se ha creado un grupo volumen mediante sudo vgcreate gv1 /dev/sdc1 y se ha utlizado sudo vgscan para ver que se ha creado correctamente.
+
+El primer script pedido en esta parte se ha realizado via ssh. En primer lugar se comprueba que el grupo volumen introducido como parámetro existe (sudo vgdisplay volume_group), en caso afirmativo para cada partición introducida como parámetro se comprueba si existe (test -e partition), si es así, se crea una partición lvm (sudo pvcreate) y finalmente se añade al grupo volumen (sudo vgextend). Si una partición que se desee añadir a un grupo volumen tiene un sistema de ficheros montado será necesario desmontarlo (sudo umount particion -l). No se realiza en el script por si se introdujese una partición por error y se perdiese información sin desearlo.
+
+El segundo script también se ha realizado via ssh. En primer lugar se comprueba que existe el grupo volumen de la misma forma que en el script anterior. Despúes se comprueba si existe el volumen lógico, si no existe, se procede a crearlo (sudo lvcreate -L size --name volume_logical volume_group), se crea su sistema de ficheros (sudo mkfs -t file_system /dev/volume_group/volume_logical), se crea el directorio de montaje si no existe (sudo mkdir -p mount_directory), se monta el sistema de ficheros (sudo mount -t file_system /dev/volume_group/volume_logical mount_directory) y se modifica el fichero fstab (echo fstab_line | sudo tee -a /etc/fstab). Si el volumen lógico existe, se extiende su capacidad (sudo lvextend -L+size /dev/volume_group/volume_logical) y la de su sistema de ficheros (sudo resize2fs /dev/volume_group/volume_logical size).
+Para comprobar el funcionamiento de este script, a partir del grupo volumen 'gv1' creado anteriormente, en primer lugar se ha creado un volumen lógico 'vl1' introduciendo la siguiente línea por la entrada estándar: gv1,vl1,100M,ext4,/mnt/gv1-vl1. Para comprobar los resultados se ha utlizado lvdisplay para comprobar que se había creado el volumen lógico, se ha consultado el fichero /etc/fstab para comprobar que se había escrito correctamente, el fichero /etc/mtab para comprobar el correcto montaje, el directorio /mnt para comprobar que se había creado el directorio de montaje y por último se ha reinciado la máquina y se ha vuelto a consultar /etc/mtab para comprobar que el volumen lógico se montaba al inicio del sistema. En segudno lugar se ha procedido a extender la capacidad del volumen lógico y de su sistema de ficheros introduciendo la siguiente líena: gv1,vl1,150M,ext4,/mnt/gv1-vl1. Para este caso se ha utilizado lvdisplay para comprobar el nuevo tamaño del volumen lógico.
+ 

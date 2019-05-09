@@ -45,7 +45,7 @@ class TestPractica4(unittest.TestCase):
         for ip in self.IPs:
             try:
                 s=pxssh.pxssh(options={"PasswordAuthentication" : "no"})
-                s.login(ip, "as", ssh_key="~/.ssh/id_as_ed25519")
+                s.login(ip, "user", ssh_key="~/.ssh/id_as_ed25519")
                 # send inocuous command
                 s.sendline('true')
                 self.assertTrue(s.prompt())
@@ -66,7 +66,7 @@ class TestPractica4(unittest.TestCase):
         for ip in self.IPs:
             try:
                 s=pxssh.pxssh(options={"PasswordAuthentication" : "no"})
-                s.login(ip, "as", ssh_key="~/.ssh/id_as_ed25519")
+                s.login(ip, "user", ssh_key="~/.ssh/id_as_ed25519")
                 s.sendline('grep -E "^\s*PermitRootLogin\s+no" /etc/ssh/sshd_config')
                 self.assertTrue(s.prompt())
                 line_to_match=rem_escape.sub('', s.before.splitlines()[-1])
