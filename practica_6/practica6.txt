@@ -1,0 +1,16 @@
+Eduardo Gimeno 721615
+
+La máquina debian-as2 será la que almacene toda la información en esta práctica.
+
+PARTE 1
+En primer lugar se ha modificado el fichero /etc/rsyslog.conf en la máquina debian-as1 para que lo que llegue a rsyslog por local0.info lo escriba en /var/log/monitorizacion.log.
+
+Después se ha realizado el script, para la información que proporciona el comando uptime, free -h, df -h (la opción -h muestra la información más legible) se ha utlizado awk para filtrar los campos pedidos y cada resultado se ha pasado mediante una tubería al comando logger. Para la información que proporciona el comando netstat y ps se ha utlizado egrep y wc -l para filtrarla. Añadir que para uptime según cuantos usuarios hubiera los campos pueden variar y para logger se han utlizado las opciones -p para establecer una prioridad y -t para saber de que máquina proviene cada información (esto resulta interesante cuando toda la información va a debian-as2).
+
+En cada máquina la etiqueta para la ocpión -t de logger será el nombre de la máquina, es decir, en debian-as1 será debian-as1 y en debian-as2 será debian-as2.
+
+En el fichero /etc/crontab se ha añadido la siguiente línea para probar el correcto funcionamiento del script anterior y de rsyslog, * * * * * root /home/as/practica6/practica6_parte1.sh. Con esto el script se ejecutará cada minuto.
+
+Una vez que todo lo anterior funciona correctamente se vuelve a modificar el fichero /etc/rsyslog.conf en debian-as1 para que la información que llegue por local0.info vaya a debian-as1, modificando /var/log/monitorizacion.log por @@192.168.56.3:514. Esto hará que la información se envie mediante protocolo TCP, además en el fichero rsyslog.conf de debian-as2 se han descomentado las opciones correspondientes a recibir información meidante este protocolo.
+
+En el fichero /etc/rsyslog.conf de debian-as2 la información que llegue por local0.info se escribirá en el fichero /var/log/monitorizacion.log.
